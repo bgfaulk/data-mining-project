@@ -1,0 +1,90 @@
+
+
+public class RandomData
+{
+   public static final String ATF_WEBSERVICE_CALL = "no url here so I don't share to much information with the world!";
+   public static final String REQUEST_PARAM = "agreement=";
+   public static final String LINE_BREAK = "\r\n ----------------------------------------------------------------------------------------------------------------\r\n";
+
+   public static void main( String args[] )
+   {
+      try
+      {
+         getResults();
+      }
+      catch ( Exception exception )
+      {
+         exception.printStackTrace();
+      }
+   }
+
+   public static void getResults() throws Exception
+   {
+      String results = null;
+      File outputFile = new File( "output_data.txt" );
+      BufferedWriter bufferedWriter = new BufferedWriter( new FileWriter( outputFile ) );
+
+      //need to read in file here
+      InputStream file;
+      BufferedReader bufferedReader;
+      String line;
+
+      file = new FileInputStream( "random_result_sets.txt" ); //file name to read in
+      bufferedReader = new BufferedReader( new InputStreamReader( file, Charset.forName( "UTF-8" ) ) );
+
+      //loop through all the guids that come in one at a time.
+      try
+      {
+         while ( ( line = bufferedReader.readLine() ) != null )
+         {
+            results = makeRequest( ATF_WEBSERVICE_CALL, REQUEST_PARAM + line );
+
+            //new file to create
+            System.out.println( results );
+            bufferedWriter.write( results );
+            bufferedWriter.write( LINE_BREAK );
+         }
+
+         bufferedWriter.close();
+         System.out.println( "DONE" );
+      }
+      catch ( IOException ioException )
+      {
+         ioException.printStackTrace();
+      }
+
+      bufferedReader.close();
+   }
+
+   public static String makeRequest( String endpoint, String requestParameters )
+   {
+      String result = null;
+      try
+      {
+         // Send data
+         String urlStr = endpoint;
+         if ( requestParameters != null && requestParameters.length() > 0 )
+         {
+            urlStr += "?" + requestParameters;
+         }
+         URL url = new URL( urlStr );
+         URLConnection connection = url.openConnection();
+
+         // Get the response
+         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) );
+         StringBuffer stringBuffer = new StringBuffer();
+         String line;
+         while ( ( line = bufferedReader.readLine() ) != null )
+         {
+            stringBuffer.append( line );
+         }
+         bufferedReader.close();
+         result = stringBuffer.toString();
+      }
+      catch ( Exception e )
+      {
+         e.printStackTrace();
+      }
+      return result;
+   }
+}
